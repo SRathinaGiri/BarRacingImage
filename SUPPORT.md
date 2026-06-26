@@ -22,6 +22,8 @@ To use Bar Racing Image in Power BI:
    - Play Axis: the frame or period used for animation.
 3. Use the play, reset, step, and scrubber controls to review the animation.
 
+Sample data is available in the `sample` folder of the GitHub repository. Import `BarRacingImageSampleData.csv` and map Category, ImageURI, PageViews, and Period to the visual roles.
+
 ## 3. Formatting
 
 The format pane includes settings for animation timing, autoplay, loop behavior, maximum visible bars, data labels, image placement, axes, gridlines, bar corner radius, and color mode.

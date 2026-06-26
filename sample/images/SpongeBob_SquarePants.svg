@@ -1,0 +1,8 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="SpongeBob SquarePants">
+  <rect width="128" height="128" rx="18" fill="#f8f8f8"/>
+  <rect x="20" y="20" width="88" height="88" rx="14" fill="#F7D843"/>
+<circle cx="48" cy="55" r="8" fill="#fff"/>
+<circle cx="80" cy="55" r="8" fill="#fff"/>
+<rect x="42" y="80" width="44" height="8" rx="4" fill="#2B7BBB"/>
+  <text x="64" y="76" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#111">SB</text>
+</svg>

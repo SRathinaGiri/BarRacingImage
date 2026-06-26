@@ -28,6 +28,12 @@ An animated bar racing chart for Microsoft Power BI with support for category im
 4. Use the play, reset, step, and scrubber controls to move through frames.
 5. Tune animation and label settings in the formatting pane.
 
+## Sample Report Data
+
+The `sample` folder contains a ready-to-import CSV using real 2024 Wikimedia pageview counts for selected cartoon-character article pages. It includes embedded `data:image/svg+xml` image values for testing the Image URI role.
+
+See [sample/README.md](sample/README.md).
+
 ## Certification and Privacy
 
 This visual is designed for Microsoft Power BI certification:
