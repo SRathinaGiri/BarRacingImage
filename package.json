@@ -1,0 +1,35 @@
+{
+  "name": "bar-racing-image",
+  "description": "Animated bar racing chart with category images for Microsoft Power BI.",
+  "version": "1.0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SRathinaGiri/BarRacingImage.git"
+  },
+  "license": "MIT",
+  "scripts": {
+    "pbiviz": "pbiviz",
+    "start": "pbiviz start",
+    "package": "pbiviz package --certification-audit",
+    "eslint": "npx eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "npm run eslint"
+  },
+  "dependencies": {
+    "@types/d3": "7.4.3",
+    "d3": "7.9.0",
+    "powerbi-visuals-api": "~5.11.0",
+    "powerbi-visuals-utils-dataviewutils": "^6.1.0",
+    "powerbi-visuals-utils-formattingmodel": "^6.1.1",
+    "powerbi-visuals-utils-formattingutils": "^6.1.2",
+    "powerbi-visuals-utils-tooltiputils": "^6.0.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "eslint": "^9.11.1",
+    "eslint-plugin-powerbi-visuals": "^1.1.1",
+    "typescript": "5.5.4"
+  },
+  "overrides": {
+    "@types/d3-dispatch": "3.0.0"
+  }
+}
