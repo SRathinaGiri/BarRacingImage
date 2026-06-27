@@ -176,7 +176,7 @@ class AxesCardSettings extends formattingSettings.SimpleCard {
 
     public showXAxisLabels = new formattingSettings.ToggleSwitch({ name: "showXAxisLabels", value: true });
     public showYAxisLabels = new formattingSettings.ToggleSwitch({ name: "showYAxisLabels", value: true });
-    public yAxisFontSize = new formattingSettings.NumUpDown({ name: "yAxisFontSize", value: 12 });
+    public yAxisFontSize = new formattingSettings.NumUpDown({ name: "yAxisFontSize", displayName: "Axis Font Size", value: 12 });
     public showGridlines = new formattingSettings.ToggleSwitch({ name: "showGridlines", value: true });
     public showXAxisTitle = new formattingSettings.ToggleSwitch({ name: "showXAxisTitle", value: false });
     public showYAxisTitle = new formattingSettings.ToggleSwitch({ name: "showYAxisTitle", value: false });
@@ -588,13 +588,21 @@ export class Visual implements IVisual {
 
     // Compute margins and inner chart area taking into account axis visibility,
     // titles, and reserved space for the bottom controls.
-    private computeLayout(width: number, height: number) {
+    private computeLayout(width: number, height: number, data?: BarDataPoint[]) {
         const base = this.margin;
         const showX = this.settings?.axes?.showXAxisLabels !== false;
         const showY = (this.settings?.axes?.showYAxisLabels !== false) && !(this.settings?.labels?.categoryOnBars);
         const showXTitle = !!this.settings?.axes?.showXAxisTitle;
         const showYTitle = !!this.settings?.axes?.showYAxisTitle;
-        const leftMargin = showY ? Math.max(base.left, showYTitle ? 54 : base.left) : 14;
+        const axisFontSize = this.getAxisFontSize();
+        const labelPadding = 18;
+        const yTitleReserve = showYTitle ? 28 : 0;
+        const dynamicLabelWidth = showY && data?.length
+            ? Math.max(...data.map(d => this.estimateAxisLabelWidth(this.getAxisDisplayLabel(d), axisFontSize)))
+            : 0;
+        const maxAdaptiveLeft = Math.max(base.left, Math.floor(width * 0.42));
+        const adaptiveLeft = Math.min(maxAdaptiveLeft, Math.ceil(dynamicLabelWidth + labelPadding + yTitleReserve));
+        const leftMargin = showY ? Math.max(base.left, adaptiveLeft) : 14;
         const bottomMargin = (showX ? (base.bottom + 16) : 8) + (showXTitle ? 18 : 0);
         const mLeft = leftMargin; const mBottom = bottomMargin; const mTop = base.top; const mRight = base.right;
         const innerWidth = Math.max(0, width - mLeft - mRight);
@@ -774,18 +782,9 @@ export class Visual implements IVisual {
         // Recompute layout each frame to avoid overlaps during animation
         const svgWidth = Number(this.svg.attr("width") || 0);
         const svgHeight = Number(this.svg.attr("height") || 0);
-        const lay = this.computeLayout(svgWidth, svgHeight);
-        this.barContainer.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
-        this.xAxisGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop + lay.innerHeight})`);
-        this.yAxisGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
-        this.xTitleGroup.attr("transform", `translate(${lay.mLeft + lay.innerWidth/2}, ${lay.mTop + lay.innerHeight + 14})`);
-        this.yTitleGroup.attr("transform", `translate(${lay.mLeft - 14}, ${lay.mTop + lay.innerHeight/2}) rotate(-90)`);
-        this.playAxisLabelGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
-        innerWidth = lay.innerWidth; innerHeight = lay.innerHeight;
 
         // Update frame label
         this.frameLabel.textContent = frame.label || "";
-        this.renderPlayAxisLabel(frame.label || "", innerWidth, innerHeight);
         if (this.progressSlider) {
             this.progressSlider.value = String(this.currentFrameIndex);
         }
@@ -810,6 +809,16 @@ export class Visual implements IVisual {
                 if (cached) d.imageUrl = cached;
             }
         });
+        const lay = this.computeLayout(svgWidth, svgHeight, data);
+        this.barContainer.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
+        this.xAxisGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop + lay.innerHeight})`);
+        this.yAxisGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
+        this.xTitleGroup.attr("transform", `translate(${lay.mLeft + lay.innerWidth/2}, ${lay.mTop + lay.innerHeight + 14})`);
+        this.yTitleGroup.attr("transform", `translate(${lay.mLeft - 14}, ${lay.mTop + lay.innerHeight/2}) rotate(-90)`);
+        this.playAxisLabelGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
+        innerWidth = lay.innerWidth;
+        innerHeight = lay.innerHeight;
+        this.renderPlayAxisLabel(frame.label || "", innerWidth, innerHeight);
 
         // Scales
         const xScale = d3.scaleLinear()
@@ -861,21 +870,22 @@ export class Visual implements IVisual {
             .selectAll(".tick line")
             .attr("stroke", showGrid ? (isHC ? fg : "#e0e0e0") : "none");
         const showXAxisLabels = this.settings?.axes?.showXAxisLabels !== false;
+        const axisFontSize = this.getAxisFontSize();
         this.xAxisGroup.selectAll(".tick text")
             .attr("fill", showXAxisLabels ? (isHC ? fg : "#666") : "transparent")
             .style("display", showXAxisLabels ? null : "none")
-            .style("font-family", this.getFontFamily());
+            .style("font-family", this.getFontFamily())
+            .style("font-size", `${axisFontSize}px`);
         this.xAxisGroup.select(".domain").remove();
 
         this.yAxisGroup
             .transition().duration(duration).ease(easeType)
             .call(yAxis as any);
         const showAxisCats = (this.settings?.axes?.showYAxisLabels !== false) && !(this.settings?.labels?.categoryOnBars);
-        const yAxisFont = Math.max(8, this.settings?.axes?.yAxisFontSize ?? (this.settings?.labels?.fontSize ?? 12));
         this.yAxisGroup.selectAll(".tick text")
             .attr("fill", showAxisCats ? (isHC ? fg : "#333") : "transparent")
             .style("font-family", this.getFontFamily())
-            .style("font-size", `${yAxisFont}px`)
+            .style("font-size", `${axisFontSize}px`)
             .style("display", showAxisCats ? null : "none");
         this.yAxisGroup.select(".domain").remove();
         (this.yAxisGroup as any).raise?.();
@@ -971,6 +981,21 @@ export class Visual implements IVisual {
             const fam = window.getComputedStyle(el).fontFamily;
             return fam || "Segoe UI, sans-serif";
         } catch { return "Segoe UI, sans-serif"; }
+    }
+
+    private getAxisFontSize(): number {
+        return Math.max(8, this.settings?.axes?.yAxisFontSize ?? (this.settings?.labels?.fontSize ?? 12));
+    }
+
+    private getAxisDisplayLabel(d: BarDataPoint): string {
+        if (d.imageUrl && this.settings?.labels?.showCategoryWithImage === false) return "";
+        return this.getDisplayLabel(d) || this.getFallbackCategoryLabel(d.category);
+    }
+
+    private estimateAxisLabelWidth(label: string, fontSize: number): number {
+        if (!label) return 0;
+
+        return Math.max(fontSize * 1.5, label.length * fontSize * 0.58);
     }
 
     private getCategoryFontFamily(): string {

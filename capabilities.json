@@ -144,7 +144,7 @@
       "properties": {
         "showXAxisLabels": { "displayName": "Show X-Axis Labels", "type": { "bool": true } },
         "showYAxisLabels": { "displayName": "Show Y-Axis Labels", "type": { "bool": true } },
-        "yAxisFontSize": { "displayName": "Y-Axis Font Size", "type": { "numeric": true } },
+        "yAxisFontSize": { "displayName": "Axis Font Size", "type": { "numeric": true } },
         "showGridlines": { "displayName": "Show Gridlines", "type": { "bool": true } },
         "showXAxisTitle": { "displayName": "Show X-Axis Title", "type": { "bool": true } },
         "showYAxisTitle": { "displayName": "Show Y-Axis Title", "type": { "bool": true } }
