@@ -1,6 +1,12 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Pikachu">
   <rect width="128" height="128" rx="18" fill="#f8f8f8"/>
-  <circle cx="64" cy="64" r="44" fill="#FFD83D"/>
-<polygon points="66,22 42,70 62,70 52,106 88,56 68,56" fill="#E84545"/>
-  <text x="64" y="76" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#111">PK</text>
+  <polygon points="42,25 53,56 30,42" fill="#FFD83D" stroke="#222" stroke-width="4"/>
+<polygon points="86,25 75,56 98,42" fill="#FFD83D" stroke="#222" stroke-width="4"/>
+<circle cx="64" cy="70" r="39" fill="#FFD83D" stroke="#222" stroke-width="3"/>
+<circle cx="49" cy="66" r="7" fill="#111"/>
+<circle cx="79" cy="66" r="7" fill="#111"/>
+<circle cx="43" cy="82" r="9" fill="#E84545"/>
+<circle cx="85" cy="82" r="9" fill="#E84545"/>
+<path d="M54 90 Q64 98 74 90" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+<polygon points="66,22 42,70 62,70 52,106 88,56 68,56" fill="#FFB300" opacity=".35"/>
 </svg>

@@ -74,7 +74,7 @@ class AnimationCardSettings extends formattingSettings.SimpleCard {
     public displayName: string = "Animation";
 
     public duration = new formattingSettings.NumUpDown({ name: "duration", value: 500 });
-    public frameDelay = new formattingSettings.NumUpDown({ name: "frameDelay", value: 0 });
+    public frameDelay = new formattingSettings.NumUpDown({ name: "frameDelay", value: 100 });
     public easing = new formattingSettings.ItemDropdown({
         name: "easing",
         items: [
@@ -133,9 +133,22 @@ class LabelsCardSettings extends formattingSettings.SimpleCard {
     });
     public precision = new formattingSettings.NumUpDown({ name: "precision", value: 0 });
     public categoryOnBars = new formattingSettings.ToggleSwitch({ name: "categoryOnBars", value: false });
+    public categoryFontFamily = new formattingSettings.ItemDropdown({
+        name: "categoryFontFamily",
+        value: { value: "Segoe UI", displayName: "Segoe UI" },
+        items: [
+            { value: "Segoe UI", displayName: "Segoe UI" },
+            { value: "Arial", displayName: "Arial" },
+            { value: "Calibri", displayName: "Calibri" },
+            { value: "Verdana", displayName: "Verdana" },
+            { value: "Tahoma", displayName: "Tahoma" }
+        ]
+    });
+    public categoryFontSize = new formattingSettings.NumUpDown({ name: "categoryFontSize", value: 12 });
     public showCategoryWithImage = new formattingSettings.ToggleSwitch({ name: "showCategoryWithImage", value: true });
     public showImageInTooltip = new formattingSettings.ToggleSwitch({ name: "showImageInTooltip", value: true });
     public iconOutline = new formattingSettings.ToggleSwitch({ name: "iconOutline", value: false });
+    public imagePadding = new formattingSettings.NumUpDown({ name: "imagePadding", value: 2 });
     public imageInsideEnd = new formattingSettings.ToggleSwitch({ name: "imageInsideEnd", value: false });
     public labelsInside = new formattingSettings.ToggleSwitch({ name: "labelsInside", value: false });
 
@@ -146,9 +159,12 @@ class LabelsCardSettings extends formattingSettings.SimpleCard {
         this.displayUnits,
         this.precision,
         this.categoryOnBars,
+        this.categoryFontFamily,
+        this.categoryFontSize,
         this.showCategoryWithImage,
         this.showImageInTooltip,
         this.iconOutline,
+        this.imagePadding,
         this.imageInsideEnd,
         this.labelsInside
     ];
@@ -459,9 +475,13 @@ export class Visual implements IVisual {
             this.settings.labels.displayUnits = this.normalizeDisplayUnits(l.displayUnits.value);
             this.settings.labels.precision = this.normalizePrecision(l.precision.value);
             this.settings.labels.categoryOnBars = l.categoryOnBars.value ?? this.settings.labels.categoryOnBars;
+            const categoryFontFamilyVal = (l.categoryFontFamily as any)?.value;
+            this.settings.labels.categoryFontFamily = categoryFontFamilyVal?.value ?? this.settings.labels.categoryFontFamily;
+            this.settings.labels.categoryFontSize = l.categoryFontSize?.value ?? this.settings.labels.categoryFontSize;
             this.settings.labels.showCategoryWithImage = l.showCategoryWithImage?.value ?? this.settings.labels.showCategoryWithImage;
             this.settings.labels.showImageInTooltip = l.showImageInTooltip?.value ?? this.settings.labels.showImageInTooltip;
             this.settings.labels.iconOutline = l.iconOutline?.value ?? this.settings.labels.iconOutline;
+            this.settings.labels.imagePadding = l.imagePadding?.value ?? this.settings.labels.imagePadding;
             this.settings.labels.imageInsideEnd = l.imageInsideEnd?.value ?? this.settings.labels.imageInsideEnd;
             this.settings.labels.labelsInside = l.labelsInside?.value ?? this.settings.labels.labelsInside;
             // color slice is ThemeColorData; also mirrored via metadata objects parsing below
@@ -953,6 +973,11 @@ export class Visual implements IVisual {
         } catch { return "Segoe UI, sans-serif"; }
     }
 
+    private getCategoryFontFamily(): string {
+        const configured = this.settings?.labels?.categoryFontFamily;
+        return configured && configured.trim().length ? configured : this.getFontFamily();
+    }
+
     private renderDataLabels(data: BarDataPoint[], xScale: d3.ScaleLinear<number, number>, yScale: d3.ScaleBand<string>, innerWidth: number, innerHeight: number, formatter: any) {
         const show = this.settings?.animation ? (this.settings.labels?.show ?? true) : true;
         const fontSize = Math.max(8, this.settings?.labels?.fontSize ?? 12);
@@ -1072,9 +1097,9 @@ export class Visual implements IVisual {
 
     private renderCategoryLabels(data: BarDataPoint[], xScale: d3.ScaleLinear<number, number>, yScale: d3.ScaleBand<string>) {
         const enabled = !!this.settings?.labels?.categoryOnBars;
-        const fontFamily = this.getFontFamily();
+        const fontFamily = this.getCategoryFontFamily();
         const userColor = this.settings?.labels?.color || "#333";
-        const fontSize = Math.max(10, this.settings?.labels?.fontSize ?? 12);
+        const fontSize = Math.max(8, this.settings?.labels?.categoryFontSize ?? this.settings?.labels?.fontSize ?? 12);
         const duration = this.getAnimationDuration();
         const easeType = this.getEaseFunction();
         const palette: any = this.colorPalette as any;
@@ -1151,6 +1176,7 @@ export class Visual implements IVisual {
         const showLabels = this.settings?.animation ? (this.settings.labels?.show ?? true) : true;
         const labelsInside = !!this.settings?.labels?.labelsInside;
         const fontSize = Math.max(8, this.settings?.labels?.fontSize ?? 12);
+        const imagePadding = Math.max(0, Math.min(24, this.settings?.labels?.imagePadding ?? 2));
         const iconOutline = this.settings?.labels?.iconOutline ? "1px solid rgba(0,0,0,0.35)" : "none";
         const iconRadius = this.settings?.labels?.iconOutline ? "3px" : "0px";
         this.barContainer.selectAll("image.cat-icon").remove();
@@ -1158,22 +1184,22 @@ export class Visual implements IVisual {
             .selectAll<SVGForeignObjectElement, BarDataPoint>("foreignObject.cat-icon")
             .data(iconData, (d: any) => d.category);
 
-        const iconSize = Math.max(0, yScale.bandwidth());
+        const iconSize = Math.max(0, yScale.bandwidth() - imagePadding * 2);
         const approxTextWidth = (s: string) => s ? Math.max(0, s.length * (fontSize * 0.6)) : 0;
         const threshold = Math.max(16, fontSize * 2 + 8);
         const iconX = (d: BarDataPoint) => {
             const w = xScale(d.value);
-            const maxInside = Math.max(0, w - iconSize);
+            const maxInside = Math.max(0, w - iconSize - imagePadding);
             if (placeEnd) {
                 let offset = 0;
                 if (showLabels && labelsInside && w > threshold) {
                     const text = formatter?.format ? formatter.format(d.value) : String(d.value);
                     offset = approxTextWidth(text) + 6;
                 }
-                const desired = w - iconSize - 2 - offset;
+                const desired = w - iconSize - imagePadding - offset;
                 return Math.max(0, Math.min(desired, maxInside));
             }
-            return Math.min(2, maxInside);
+            return Math.min(imagePadding, maxInside);
         };
 
         const merged = icons.join(
@@ -1181,7 +1207,7 @@ export class Visual implements IVisual {
                 const fo = enter.append("foreignObject")
                     .attr("class", "cat-icon")
                     .attr("x", d => placeEnd ? 0 : iconX(d))
-                    .attr("y", d => yScale(d.category) ?? 0)
+                    .attr("y", d => (yScale(d.category) ?? 0) + imagePadding)
                     .attr("width", iconSize)
                     .attr("height", iconSize)
                     .style("pointer-events", "none");
@@ -1194,7 +1220,7 @@ export class Visual implements IVisual {
                     .style("border-radius", iconRadius);
                 return fo.call(enterSel => enterSel.transition().duration(duration).ease(easeType)
                     .attr("x", d => iconX(d))
-                    .attr("y", d => yScale(d.category) ?? 0)
+                    .attr("y", d => (yScale(d.category) ?? 0) + imagePadding)
                     .attr("width", iconSize)
                     .attr("height", iconSize)
                 );
@@ -1206,7 +1232,7 @@ export class Visual implements IVisual {
                     .style("border-radius", iconRadius);
                 return update.call(updateSel => updateSel.transition().duration(duration).ease(easeType)
                     .attr("x", d => iconX(d))
-                    .attr("y", d => yScale(d.category) ?? 0)
+                    .attr("y", d => (yScale(d.category) ?? 0) + imagePadding)
                     .attr("width", iconSize)
                     .attr("height", iconSize)
                 );
@@ -1557,41 +1583,63 @@ export class Visual implements IVisual {
         s.flexDirection = "column";
         s.alignItems = "center";
         s.justifyContent = "center";
-        s.gap = "12px";
-        s.padding = "18px";
+        s.gap = "14px";
+        s.padding = "24px";
         s.background = "#ffffff";
         s.color = "#1f2933";
         s.fontFamily = "Segoe UI, Arial, sans-serif";
         s.textAlign = "center";
         s.overflowY = "auto";
 
+        const icon = document.createElement("img");
+        icon.setAttribute("aria-hidden", "true");
+        const iconSvg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="132" height="132" viewBox="0 0 512 512">
+                <rect x="24" y="24" width="464" height="464" rx="96" fill="#f7be23" stroke="#20252e" stroke-width="18"/>
+                <rect x="48" y="48" width="416" height="172" rx="70" fill="#ffd757" opacity=".55"/>
+                <rect x="68" y="118" width="110" height="110" rx="24" fill="#fff" stroke="#20252e" stroke-width="10"/>
+                <circle cx="110" cy="160" r="18" fill="#1984c4"/>
+                <path d="M86 214l38-36 24 26 18-20v30z" fill="#27a763"/>
+                <rect x="205" y="128" width="213" height="46" rx="22" fill="#26619c" stroke="#20252e" stroke-width="8"/>
+                <rect x="205" y="214" width="169" height="46" rx="22" fill="#1e8758" stroke="#20252e" stroke-width="8"/>
+                <rect x="205" y="300" width="113" height="46" rx="22" fill="#c44636" stroke="#20252e" stroke-width="8"/>
+                <path d="M92 306v94l82-47z" fill="#20252e"/>
+                <path d="M108 330v46l40-23z" fill="#f7be23"/>
+                <text x="204" y="422" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="700" fill="#20252e">BR</text>
+            </svg>`;
+        icon.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSvg)}`;
+        icon.alt = "";
+        icon.style.width = "132px";
+        icon.style.height = "132px";
+        page.appendChild(icon);
+
         const title = document.createElement("h2");
         title.textContent = "Bar Racing Image";
         title.style.margin = "0";
         title.style.color = "#1f5d99";
-        title.style.fontSize = "22px";
-        title.style.fontWeight = "600";
+        title.style.fontSize = "34px";
+        title.style.fontWeight = "700";
         page.appendChild(title);
 
         const subtitle = document.createElement("p");
         subtitle.textContent = "Animated bar race chart with optional category images.";
         subtitle.style.margin = "0";
-        subtitle.style.fontSize = "12px";
+        subtitle.style.fontSize = "17px";
         subtitle.style.color = "#52616f";
         page.appendChild(subtitle);
 
         const author = document.createElement("p");
         author.textContent = "Developed by S. Rathinagiri";
         author.style.margin = "0";
-        author.style.fontSize = "12px";
+        author.style.fontSize = "14px";
         author.style.fontWeight = "600";
         page.appendChild(author);
 
         const box = document.createElement("div");
         box.style.boxSizing = "border-box";
-        box.style.width = "min(460px, 96%)";
+        box.style.width = "min(560px, 96%)";
         box.style.marginTop = "8px";
-        box.style.padding = "14px 16px";
+        box.style.padding = "18px 20px";
         box.style.border = "1px solid #d7dde5";
         box.style.borderRadius = "6px";
         box.style.background = "#f8fafc";
@@ -1600,13 +1648,14 @@ export class Visual implements IVisual {
         const boxTitle = document.createElement("div");
         boxTitle.textContent = "To visualize your data:";
         boxTitle.style.fontWeight = "600";
-        boxTitle.style.marginBottom = "8px";
+        boxTitle.style.marginBottom = "10px";
+        boxTitle.style.fontSize = "15px";
         box.appendChild(boxTitle);
 
         const list = document.createElement("ol");
         list.style.margin = "0";
         list.style.paddingLeft = "20px";
-        list.style.fontSize = "12px";
+        list.style.fontSize = "14px";
         list.style.lineHeight = "1.55";
 
         [
@@ -1626,7 +1675,7 @@ export class Visual implements IVisual {
         const note = document.createElement("p");
         note.textContent = "External image URLs are not loaded; use embedded data:image values.";
         note.style.margin = "2px 0 0";
-        note.style.fontSize = "11px";
+        note.style.fontSize = "12px";
         note.style.color = "#64748b";
         page.appendChild(note);
 
@@ -1702,9 +1751,12 @@ export class Visual implements IVisual {
                     displayUnits: settings.labels.displayUnits,
                     precision: settings.labels.precision,
                     categoryOnBars: settings.labels.categoryOnBars,
+                    categoryFontFamily: settings.labels.categoryFontFamily,
+                    categoryFontSize: settings.labels.categoryFontSize,
                     showCategoryWithImage: settings.labels.showCategoryWithImage,
                     showImageInTooltip: settings.labels.showImageInTooltip,
                     iconOutline: settings.labels.iconOutline,
+                    imagePadding: settings.labels.imagePadding,
                     imageInsideEnd: settings.labels.imageInsideEnd
                 },
                 selector: null
@@ -1720,9 +1772,12 @@ export class Visual implements IVisual {
                     displayUnits: settings.labels.displayUnits,
                     precision: settings.labels.precision,
                     categoryOnBars: settings.labels.categoryOnBars,
+                    categoryFontFamily: settings.labels.categoryFontFamily,
+                    categoryFontSize: settings.labels.categoryFontSize,
                     showCategoryWithImage: settings.labels.showCategoryWithImage,
                     showImageInTooltip: settings.labels.showImageInTooltip,
                     iconOutline: settings.labels.iconOutline,
+                    imagePadding: settings.labels.imagePadding,
                     imageInsideEnd: settings.labels.imageInsideEnd,
                     labelsInside: settings.labels.labelsInside
                 },

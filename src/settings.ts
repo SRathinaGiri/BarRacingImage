@@ -15,7 +15,7 @@ export class AnimationSettings {
   // This is the property for our duration
   // We give it a default value of 250
   public duration: number = 500;
-  public frameDelay: number = 0;
+  public frameDelay: number = 100;
   public easing: string = "linear";
   public autoplay: boolean = true;
   public loop: boolean = true;
@@ -33,9 +33,12 @@ export class LabelSettings {
   public displayUnits: number = 1; // 0 = Auto, 1 = None, 1000, 1000000, 1000000000
   public precision: number = 0;
   public categoryOnBars: boolean = false;
+  public categoryFontFamily: string = "Segoe UI";
+  public categoryFontSize: number = 12;
   public showCategoryWithImage: boolean = true;
   public showImageInTooltip: boolean = true;
   public iconOutline: boolean = false;
+  public imagePadding: number = 2;
   public imageInsideEnd: boolean = false;
   // true = inside end, false = outside end
   public labelsInside: boolean = false;

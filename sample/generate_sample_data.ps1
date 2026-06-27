@@ -34,39 +34,75 @@ function New-IconSvg {
     $shapeMarkup = switch ($Shape) {
         "ears" {
             @"
-<ellipse cx="44" cy="28" rx="14" ry="24" fill="$Color"/>
-<ellipse cx="84" cy="28" rx="14" ry="24" fill="$Color"/>
-<circle cx="64" cy="70" r="42" fill="$Color"/>
-<ellipse cx="54" cy="62" rx="7" ry="10" fill="#fff"/>
-<ellipse cx="74" cy="62" rx="7" ry="10" fill="#fff"/>
+<ellipse cx="45" cy="29" rx="13" ry="25" fill="$Color" transform="rotate(-10 45 29)"/>
+<ellipse cx="83" cy="29" rx="13" ry="25" fill="$Color" transform="rotate(10 83 29)"/>
+<ellipse cx="45" cy="30" rx="6" ry="17" fill="$Accent" transform="rotate(-10 45 30)"/>
+<ellipse cx="83" cy="30" rx="6" ry="17" fill="$Accent" transform="rotate(10 83 30)"/>
+<circle cx="64" cy="72" r="39" fill="$Color"/>
+<ellipse cx="52" cy="65" rx="8" ry="10" fill="#fff"/>
+<ellipse cx="76" cy="65" rx="8" ry="10" fill="#fff"/>
+<circle cx="54" cy="67" r="3" fill="#111"/>
+<circle cx="74" cy="67" r="3" fill="#111"/>
+<ellipse cx="64" cy="83" rx="18" ry="13" fill="#fff"/>
+<rect x="58" y="82" width="5" height="12" fill="#fff" stroke="#333" stroke-width="1"/>
+<rect x="65" y="82" width="5" height="12" fill="#fff" stroke="#333" stroke-width="1"/>
 "@
         }
         "square" {
             @"
-<rect x="20" y="20" width="88" height="88" rx="14" fill="$Color"/>
-<circle cx="48" cy="55" r="8" fill="#fff"/>
-<circle cx="80" cy="55" r="8" fill="#fff"/>
-<rect x="42" y="80" width="44" height="8" rx="4" fill="$Accent"/>
+<rect x="22" y="16" width="84" height="96" rx="10" fill="$Color" stroke="#D7A700" stroke-width="3"/>
+<circle cx="47" cy="53" r="13" fill="#fff"/>
+<circle cx="81" cy="53" r="13" fill="#fff"/>
+<circle cx="50" cy="54" r="5" fill="$Accent"/>
+<circle cx="78" cy="54" r="5" fill="$Accent"/>
+<circle cx="42" cy="78" r="3" fill="#C39C00"/>
+<circle cx="88" cy="77" r="3" fill="#C39C00"/>
+<rect x="46" y="86" width="36" height="8" rx="4" fill="#8B4513"/>
+<rect x="51" y="93" width="8" height="10" fill="#fff"/>
+<rect x="69" y="93" width="8" height="10" fill="#fff"/>
 "@
         }
         "duo" {
             @"
-<circle cx="48" cy="66" r="34" fill="$Color"/>
-<circle cx="82" cy="66" r="34" fill="$Accent"/>
-<circle cx="44" cy="58" r="6" fill="#fff"/>
-<circle cx="86" cy="58" r="6" fill="#fff"/>
+<circle cx="46" cy="68" r="33" fill="$Color"/>
+<polygon points="25,39 38,55 48,36" fill="$Color"/>
+<polygon points="64,36 55,55 75,43" fill="$Color"/>
+<circle cx="42" cy="61" r="8" fill="#fff"/>
+<circle cx="55" cy="61" r="8" fill="#fff"/>
+<circle cx="43" cy="62" r="3" fill="#111"/>
+<circle cx="54" cy="62" r="3" fill="#111"/>
+<ellipse cx="49" cy="78" rx="12" ry="8" fill="#EBC7A0"/>
+<circle cx="88" cy="75" r="24" fill="$Accent"/>
+<circle cx="80" cy="69" r="6" fill="#fff"/>
+<circle cx="96" cy="69" r="6" fill="#fff"/>
+<circle cx="80" cy="69" r="2" fill="#111"/>
+<circle cx="96" cy="69" r="2" fill="#111"/>
+<ellipse cx="88" cy="84" rx="10" ry="5" fill="#fff"/>
 "@
         }
         "bolt" {
             @"
-<circle cx="64" cy="64" r="44" fill="$Color"/>
-<polygon points="66,22 42,70 62,70 52,106 88,56 68,56" fill="$Accent"/>
+<polygon points="42,25 53,56 30,42" fill="$Color" stroke="#222" stroke-width="4"/>
+<polygon points="86,25 75,56 98,42" fill="$Color" stroke="#222" stroke-width="4"/>
+<circle cx="64" cy="70" r="39" fill="$Color" stroke="#222" stroke-width="3"/>
+<circle cx="49" cy="66" r="7" fill="#111"/>
+<circle cx="79" cy="66" r="7" fill="#111"/>
+<circle cx="43" cy="82" r="9" fill="$Accent"/>
+<circle cx="85" cy="82" r="9" fill="$Accent"/>
+<path d="M54 90 Q64 98 74 90" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+<polygon points="66,22 42,70 62,70 52,106 88,56 68,56" fill="#FFB300" opacity=".35"/>
 "@
         }
         default {
             @"
-<circle cx="64" cy="64" r="46" fill="$Color"/>
-<circle cx="64" cy="64" r="28" fill="$Accent" opacity="0.9"/>
+<circle cx="43" cy="38" r="19" fill="#111"/>
+<circle cx="85" cy="38" r="19" fill="#111"/>
+<circle cx="64" cy="66" r="42" fill="$Color"/>
+<ellipse cx="64" cy="72" rx="30" ry="28" fill="$Accent" opacity="0.95"/>
+<circle cx="53" cy="62" r="6" fill="#111"/>
+<circle cx="75" cy="62" r="6" fill="#111"/>
+<ellipse cx="64" cy="78" rx="10" ry="7" fill="#111"/>
+<path d="M54 90 Q64 98 74 90" fill="none" stroke="#111" stroke-width="4" stroke-linecap="round"/>
 "@
         }
     }
@@ -75,7 +111,6 @@ function New-IconSvg {
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="$safeName">
   <rect width="128" height="128" rx="18" fill="#f8f8f8"/>
   $shapeMarkup
-  <text x="64" y="76" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#111">$safeInitials</text>
 </svg>
 "@
 }
