@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/1.2.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY26SU05",
+      "reportVersionAtImport": "5.73",
+      "type": "SharedResources"
+    }
+  },
+  "layoutOptimization": "None",
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  },
+  "slowDataSourceSettings": {
+    "isCrossHighlightingDisabled": false,
+    "isSlicerSelectionsButtonEnabled": false,
+    "isFilterSelectionsButtonEnabled": false,
+    "isFieldWellButtonEnabled": false,
+    "isApplyAllButtonEnabled": false
+  },
+  "resourcePackages": [
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "barRacingImage.barRacing19740418.pbiviz",
+          "type": 5,
+          "path": "CustomVisuals/barRacingImage.barRacing19740418.pbiviz"
+        }
+      ]
+    }
+  ],
+  "customVisuals": [
+    {
+      "name": "barRacing19740418",
+      "version": "1.0.0.0"
+    }
+  ]
+}

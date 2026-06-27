@@ -4,3 +4,5 @@ dist/
 .vscode/
 *.log
 webpack.statistics*.html
+*.Report/.pbi/
+*.SemanticModel/.pbi/
