@@ -104,7 +104,18 @@
         "show": { "displayName": "Show", "type": { "bool": true } },
         "fontSize": { "displayName": "Font Size", "type": { "numeric": true } },
         "color": { "displayName": "Color", "type": { "fill": { "solid": { "color": true } } } },
-        "displayUnits": { "displayName": "Display Units", "type": { "numeric": true } },
+        "displayUnits": {
+          "displayName": "Display Units",
+          "type": {
+            "enumeration": [
+              { "displayName": "Auto", "value": "0" },
+              { "displayName": "None", "value": "1" },
+              { "displayName": "Thousands", "value": "1000" },
+              { "displayName": "Millions", "value": "1000000" },
+              { "displayName": "Billions", "value": "1000000000" }
+            ]
+          }
+        },
         "precision": { "displayName": "Decimal Places", "type": { "numeric": true } },
         "categoryOnBars": { "displayName": "Category On Bars", "type": { "bool": true } },
         "showCategoryWithImage": { "displayName": "Show Category When Image Used", "type": { "bool": true } },

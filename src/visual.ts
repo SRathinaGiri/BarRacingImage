@@ -120,7 +120,17 @@ class LabelsCardSettings extends formattingSettings.SimpleCard {
     public show = new formattingSettings.ToggleSwitch({ name: "show", value: true });
     public fontSize = new formattingSettings.NumUpDown({ name: "fontSize", value: 12 });
     public color = new formattingSettings.ColorPicker({ name: "color", value: { solid: { color: "#333333" } } as any });
-    public displayUnits = new formattingSettings.NumUpDown({ name: "displayUnits", value: 0 });
+    public displayUnits = new formattingSettings.ItemDropdown({
+        name: "displayUnits",
+        value: { value: "1", displayName: "None" },
+        items: [
+            { value: "0", displayName: "Auto" },
+            { value: "1", displayName: "None" },
+            { value: "1000", displayName: "Thousands" },
+            { value: "1000000", displayName: "Millions" },
+            { value: "1000000000", displayName: "Billions" }
+        ]
+    });
     public precision = new formattingSettings.NumUpDown({ name: "precision", value: 0 });
     public categoryOnBars = new formattingSettings.ToggleSwitch({ name: "categoryOnBars", value: false });
     public showCategoryWithImage = new formattingSettings.ToggleSwitch({ name: "showCategoryWithImage", value: true });
@@ -446,8 +456,8 @@ export class Visual implements IVisual {
             const l = this.formattingModel.labels as any;
             this.settings.labels.show = l.show.value ?? this.settings.labels.show;
             this.settings.labels.fontSize = l.fontSize.value ?? this.settings.labels.fontSize;
-            this.settings.labels.displayUnits = l.displayUnits.value ?? this.settings.labels.displayUnits;
-            this.settings.labels.precision = l.precision.value ?? this.settings.labels.precision;
+            this.settings.labels.displayUnits = this.normalizeDisplayUnits(l.displayUnits.value);
+            this.settings.labels.precision = this.normalizePrecision(l.precision.value);
             this.settings.labels.categoryOnBars = l.categoryOnBars.value ?? this.settings.labels.categoryOnBars;
             this.settings.labels.showCategoryWithImage = l.showCategoryWithImage?.value ?? this.settings.labels.showCategoryWithImage;
             this.settings.labels.showImageInTooltip = l.showImageInTooltip?.value ?? this.settings.labels.showImageInTooltip;
@@ -922,8 +932,8 @@ export class Visual implements IVisual {
             .selectAll("title").data(d => [d]).join("title").text(d => `${this.getTooltipCategoryLabel(d)}: ${d.value}`);
 
         // Format based on measure format and settings
-        const units = this.settings?.labels?.displayUnits ?? 0;
-        const precision = Math.max(0, Math.min(6, this.settings?.labels?.precision ?? 0));
+        const units = this.normalizeDisplayUnits(this.settings?.labels?.displayUnits);
+        const precision = this.normalizePrecision(this.settings?.labels?.precision);
         const maxVal = d3.max(data, d => d.value) ?? 0;
         const fmtVal = units > 0 ? units : maxVal;
         const formatter = valueFormatter.create({ format: this.measureFormat, value: fmtVal, precision });
@@ -1225,6 +1235,22 @@ export class Visual implements IVisual {
         return this.isImageCategoryValue(d.category) ? "Image" : d.category;
     }
 
+    private normalizeDisplayUnits(value: unknown): number {
+        const rawValue = typeof value === "object" && value !== null && "value" in value
+            ? (value as { value?: unknown }).value
+            : value;
+        const numericValue = Number(rawValue);
+        const validUnits = [0, 1, 1000, 1000000, 1000000000];
+
+        return validUnits.includes(numericValue) ? numericValue : 1;
+    }
+
+    private normalizePrecision(value: unknown): number {
+        const precision = Number(value);
+
+        return Number.isFinite(precision) ? Math.max(0, Math.min(6, precision)) : 0;
+    }
+
     private getBarFillColor(baseColor: string): string {
         const mode = this.settings?.bars?.colorMode || "auto";
         if (mode === "auto") return baseColor;
@@ -1486,8 +1512,8 @@ export class Visual implements IVisual {
     }
 
     private getTooltipData(d: BarDataPoint, label: string): powerbi.extensibility.VisualTooltipDataItem[] {
-        const units = this.settings?.labels?.displayUnits ?? 0;
-        const precision = Math.max(0, Math.min(6, this.settings?.labels?.precision ?? 0));
+        const units = this.normalizeDisplayUnits(this.settings?.labels?.displayUnits);
+        const precision = this.normalizePrecision(this.settings?.labels?.precision);
         const fmt = valueFormatter.create({ format: this.measureFormat, value: units > 0 ? units : Math.abs(d.value), precision });
         const categoryLabel = this.getTooltipCategoryLabel(d);
         const items: powerbi.extensibility.VisualTooltipDataItem[] = [

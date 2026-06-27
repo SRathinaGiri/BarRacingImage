@@ -30,7 +30,7 @@ export class LabelSettings {
   public show: boolean = true;
   public fontSize: number = 12;
   public color: string = "#333333";
-  public displayUnits: number = 0; // 0 = Auto, 1000, 1000000, 1000000000
+  public displayUnits: number = 1; // 0 = Auto, 1 = None, 1000, 1000000, 1000000000
   public precision: number = 0;
   public categoryOnBars: boolean = false;
   public showCategoryWithImage: boolean = true;
