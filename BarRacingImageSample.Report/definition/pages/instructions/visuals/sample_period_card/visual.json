@@ -1,0 +1,53 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "sample_period_card",
+  "position": {
+    "x": 80,
+    "y": 80,
+    "z": 0,
+    "height": 180,
+    "width": 520,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactTable"
+                    }
+                  },
+                  "Property": "Selected Period"
+                }
+              },
+              "queryRef": "FactTable.Selected Period",
+              "nativeQueryRef": "Selected Period"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Bar Racing Image sample report'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

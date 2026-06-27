@@ -44,7 +44,7 @@
       "items": [
         {
           "name": "barRacingImage.barRacing19740418.pbiviz",
-          "type": "CustomVisual",
+          "type": 5,
           "path": "CustomVisuals/barRacingImage.barRacing19740418.pbiviz"
         }
       ]
