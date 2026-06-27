@@ -21,6 +21,8 @@ export class AnimationSettings {
   public loop: boolean = true;
   public showControls: boolean = true;
   public maxBars: number = 10;
+  public showPlayAxisLabel: boolean = true;
+  public playAxisLabelPosition: string = "top";
   public reduceMotion: boolean = false;
 }
 

@@ -78,6 +78,19 @@
           "displayName": "Max Bars",
           "type": { "numeric": true }
         },
+        "showPlayAxisLabel": {
+          "displayName": "Show Play Axis Label",
+          "type": { "bool": true }
+        },
+        "playAxisLabelPosition": {
+          "displayName": "Play Axis Label Position",
+          "type": {
+            "enumeration": [
+              { "displayName": "Top", "value": "top" },
+              { "displayName": "Bottom", "value": "bottom" }
+            ]
+          }
+        },
         "reduceMotion": {
           "displayName": "Reduce Motion",
           "type": { "bool": true }

@@ -88,6 +88,15 @@ class AnimationCardSettings extends formattingSettings.SimpleCard {
     public loop = new formattingSettings.ToggleSwitch({ name: "loop", value: true });
     public showControls = new formattingSettings.ToggleSwitch({ name: "showControls", value: true });
     public maxBars = new formattingSettings.NumUpDown({ name: "maxBars", value: 10 });
+    public showPlayAxisLabel = new formattingSettings.ToggleSwitch({ name: "showPlayAxisLabel", value: true });
+    public playAxisLabelPosition = new formattingSettings.ItemDropdown({
+        name: "playAxisLabelPosition",
+        items: [
+            { value: "top", displayName: "Top" },
+            { value: "bottom", displayName: "Bottom" }
+        ],
+        value: { value: "top", displayName: "Top" }
+    });
     public reduceMotion = new formattingSettings.ToggleSwitch({ name: "reduceMotion", value: false });
 
     public slices: formattingSettings.Slice[] = [
@@ -98,6 +107,8 @@ class AnimationCardSettings extends formattingSettings.SimpleCard {
         this.loop,
         this.showControls,
         this.maxBars,
+        this.showPlayAxisLabel,
+        this.playAxisLabelPosition,
         this.reduceMotion
     ];
 }
@@ -204,6 +215,7 @@ export class Visual implements IVisual {
     private yAxisGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
     private xTitleGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
     private yTitleGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
+    private playAxisLabelGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
     
     // Color objects
     private colorPalette: IColorPalette;
@@ -284,6 +296,7 @@ export class Visual implements IVisual {
         // Axis titles
         this.xTitleGroup = this.svg.append("g").classed("x-title", true);
         this.yTitleGroup = this.svg.append("g").classed("y-title", true);
+        this.playAxisLabelGroup = this.svg.append("g").classed("play-axis-label", true);
 
         // Controls root
         const ctrl = d3.select(this.rootElement)
@@ -424,6 +437,9 @@ export class Visual implements IVisual {
             this.settings.animation.loop = a.loop.value ?? this.settings.animation.loop;
             this.settings.animation.showControls = a.showControls.value ?? this.settings.animation.showControls;
             this.settings.animation.maxBars = a.maxBars.value ?? this.settings.animation.maxBars;
+            this.settings.animation.showPlayAxisLabel = a.showPlayAxisLabel?.value ?? this.settings.animation.showPlayAxisLabel;
+            const playAxisLabelPositionVal = (a.playAxisLabelPosition as any)?.value;
+            this.settings.animation.playAxisLabelPosition = playAxisLabelPositionVal?.value ?? this.settings.animation.playAxisLabelPosition;
             this.settings.animation.reduceMotion = a.reduceMotion?.value ?? this.settings.animation.reduceMotion;
         }
         if (this.formattingModel?.labels) {
@@ -734,10 +750,12 @@ export class Visual implements IVisual {
         this.yAxisGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
         this.xTitleGroup.attr("transform", `translate(${lay.mLeft + lay.innerWidth/2}, ${lay.mTop + lay.innerHeight + 14})`);
         this.yTitleGroup.attr("transform", `translate(${lay.mLeft - 14}, ${lay.mTop + lay.innerHeight/2}) rotate(-90)`);
+        this.playAxisLabelGroup.attr("transform", `translate(${lay.mLeft}, ${lay.mTop})`);
         innerWidth = lay.innerWidth; innerHeight = lay.innerHeight;
 
         // Update frame label
         this.frameLabel.textContent = frame.label || "";
+        this.renderPlayAxisLabel(frame.label || "", innerWidth, innerHeight);
         if (this.progressSlider) {
             this.progressSlider.value = String(this.currentFrameIndex);
         }
@@ -914,6 +932,7 @@ export class Visual implements IVisual {
         this.renderCategoryIcons(data, xScale, yScale, formatter);
         this.renderCategoryLabels(data, xScale, yScale);
         this.renderDataLabels(data, xScale, yScale, innerWidth, innerHeight, formatter);
+        this.renderPlayAxisLabel(frame.label || "", innerWidth, innerHeight);
     }
 
     private getFontFamily(): string {
@@ -1356,6 +1375,47 @@ export class Visual implements IVisual {
         }
     }
 
+    private renderPlayAxisLabel(label: string, innerWidth: number, innerHeight: number) {
+        const show = this.settings?.animation?.showPlayAxisLabel !== false && !!label;
+        if (!show) {
+            this.playAxisLabelGroup.selectAll("*").remove();
+            return;
+        }
+
+        const position = this.settings?.animation?.playAxisLabelPosition === "bottom" ? "bottom" : "top";
+        const x = Math.max(0, innerWidth - 12);
+        const y = position === "bottom" ? Math.max(18, innerHeight - 14) : 24;
+        const palette: any = this.colorPalette as any;
+        const isHC = !!palette?.isHighContrast;
+        const fill = isHC ? (palette?.foreground?.value || "#000") : "rgba(31, 41, 55, 0.72)";
+        const stroke = isHC ? (palette?.background?.value || "#fff") : "rgba(255, 255, 255, 0.88)";
+
+        this.playAxisLabelGroup
+            .selectAll<SVGTextElement, string>("text.play-axis-current-value")
+            .data([label])
+            .join(
+                enter => enter.append("text")
+                    .attr("class", "play-axis-current-value")
+                    .attr("text-anchor", "end")
+                    .attr("dominant-baseline", "middle")
+                    .style("font-family", this.getFontFamily())
+                    .style("font-size", "22px")
+                    .style("font-weight", "700")
+                    .style("paint-order", "stroke")
+                    .style("stroke-width", "4px")
+                    .style("pointer-events", "none")
+                    .text(d => d),
+                update => update.text(d => d),
+                exit => exit.remove()
+            )
+            .attr("x", x)
+            .attr("y", y)
+            .attr("fill", fill)
+            .attr("stroke", stroke);
+
+        (this.playAxisLabelGroup as any).raise?.();
+    }
+
     private updateSliderRange() {
         if (!this.progressSlider) return;
         const max = Math.max(0, (this.frames?.length || 1) - 1);
@@ -1564,6 +1624,7 @@ export class Visual implements IVisual {
         this.yAxisGroup.selectAll("*").remove();
         this.xTitleGroup.selectAll("*").remove();
         this.yTitleGroup.selectAll("*").remove();
+        this.playAxisLabelGroup.selectAll("*").remove();
         if (this.frameLabel) {
             this.frameLabel.textContent = "";
         }
@@ -1598,6 +1659,8 @@ export class Visual implements IVisual {
                     loop: settings.animation.loop,
                     showControls: settings.animation.showControls,
                     maxBars: settings.animation.maxBars,
+                    showPlayAxisLabel: settings.animation.showPlayAxisLabel,
+                    playAxisLabelPosition: settings.animation.playAxisLabelPosition,
                     reduceMotion: settings.animation.reduceMotion
                 },
                 selector: null
