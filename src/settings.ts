@@ -39,7 +39,7 @@ export class LabelSettings {
   public showImageInTooltip: boolean = true;
   public iconOutline: boolean = false;
   public imagePadding: number = 2;
-  public imageInsideEnd: boolean = false;
+  public imageInsideEnd: boolean = true;
   // true = inside end, false = outside end
   public labelsInside: boolean = false;
 }

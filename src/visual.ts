@@ -149,7 +149,7 @@ class LabelsCardSettings extends formattingSettings.SimpleCard {
     public showImageInTooltip = new formattingSettings.ToggleSwitch({ name: "showImageInTooltip", value: true });
     public iconOutline = new formattingSettings.ToggleSwitch({ name: "iconOutline", value: false });
     public imagePadding = new formattingSettings.NumUpDown({ name: "imagePadding", value: 2 });
-    public imageInsideEnd = new formattingSettings.ToggleSwitch({ name: "imageInsideEnd", value: false });
+    public imageInsideEnd = new formattingSettings.ToggleSwitch({ name: "imageInsideEnd", value: true });
     public labelsInside = new formattingSettings.ToggleSwitch({ name: "labelsInside", value: false });
 
     public slices: formattingSettings.Slice[] = [
@@ -280,6 +280,7 @@ export class Visual implements IVisual {
     private yTitleText: string = "";
     private layout: { mLeft: number; mTop: number; innerWidth: number; innerHeight: number } | null = null;
     private labelValueByCategory: { [key: string]: number } = {};
+    private labelCounterFrameByCategory: { [key: string]: number } = {};
 
     /**
      * Called once when the visual is initialized
@@ -1046,13 +1047,35 @@ export class Visual implements IVisual {
             const previous = this.labelValueByCategory[d.category];
             return Number.isFinite(previous) ? previous : d.value;
         };
-        const tweenCounter = (transition: d3.Transition<SVGTextElement, BarDataPoint, any, any>) => {
-            transition.tween("text", function(this: SVGTextElement, d: BarDataPoint) {
-                const interpolate = d3.interpolateNumber(previousValueFor(d), d.value);
-                return (t: number) => {
-                    this.textContent = formatter.format(interpolate(t));
-                };
-            });
+        const animateCounter = (node: SVGTextElement, d: BarDataPoint) => {
+            const previousFrame = this.labelCounterFrameByCategory[d.category];
+            if (previousFrame !== undefined) {
+                window.cancelAnimationFrame(previousFrame);
+                delete this.labelCounterFrameByCategory[d.category];
+            }
+
+            const startValue = previousValueFor(d);
+            const endValue = d.value;
+            if (duration <= 0 || startValue === endValue) {
+                node.textContent = formatter.format(endValue);
+                return;
+            }
+
+            const startedAt = performance.now();
+            const run = (now: number) => {
+                const progress = Math.min(1, Math.max(0, (now - startedAt) / duration));
+                const eased = easeType(progress);
+                node.textContent = formatter.format(startValue + ((endValue - startValue) * eased));
+
+                if (progress < 1) {
+                    this.labelCounterFrameByCategory[d.category] = window.requestAnimationFrame(run);
+                } else {
+                    node.textContent = formatter.format(endValue);
+                    delete this.labelCounterFrameByCategory[d.category];
+                }
+            };
+
+            this.labelCounterFrameByCategory[d.category] = window.requestAnimationFrame(run);
         };
 
         const posX = (d: BarDataPoint) => {
@@ -1096,26 +1119,37 @@ export class Visual implements IVisual {
                 .style("font-family", fontFamily)
                 .style("font-size", `${fontSize}px`)
                 .text(d => formatter.format(previousValueFor(d)));
-                const transition = entered.transition().duration(duration).ease(easeType)
+                entered.transition().duration(duration).ease(easeType)
                     .attr("x", d => posX(d))
                     .attr("y", d => (yScale(d.category) ?? 0) + yScale.bandwidth() / 2)
                     .attr("text-anchor", d => anchor(d))
                     .attr("fill", d => fillFor(d));
-                tweenCounter(transition);
+                entered.each(function(d) {
+                    animateCounter(this, d);
+                });
                 return entered;
             },
             update => {
-                const transition = update.transition().duration(duration).ease(easeType)
+                update.transition().duration(duration).ease(easeType)
                     .attr("x", d => posX(d))
                     .attr("y", d => (yScale(d.category) ?? 0) + yScale.bandwidth() / 2)
                     .attr("text-anchor", d => anchor(d))
                     .attr("fill", d => fillFor(d))
                     .style("font-family", fontFamily)
                     .style("font-size", `${fontSize}px`);
-                tweenCounter(transition);
+                update.each(function(d) {
+                    animateCounter(this, d);
+                });
                 return update;
             },
-            exit => exit.remove()
+            exit => exit.each(d => {
+                const previousFrame = this.labelCounterFrameByCategory[d.category];
+                if (previousFrame !== undefined) {
+                    window.cancelAnimationFrame(previousFrame);
+                    delete this.labelCounterFrameByCategory[d.category];
+                }
+                delete this.labelValueByCategory[d.category];
+            }).remove()
         );
         filtered.forEach(d => {
             this.labelValueByCategory[d.category] = d.value;
@@ -1748,6 +1782,10 @@ export class Visual implements IVisual {
         this.xTitleGroup.selectAll("*").remove();
         this.yTitleGroup.selectAll("*").remove();
         this.playAxisLabelGroup.selectAll("*").remove();
+        Object.keys(this.labelCounterFrameByCategory).forEach(category => {
+            window.cancelAnimationFrame(this.labelCounterFrameByCategory[category]);
+        });
+        this.labelCounterFrameByCategory = {};
         this.labelValueByCategory = {};
         if (this.frameLabel) {
             this.frameLabel.textContent = "";
