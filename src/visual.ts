@@ -227,6 +227,7 @@ export class Visual implements IVisual {
     private progressSlider: HTMLInputElement;
     private tooltipDiv: HTMLDivElement;
     private rootElement: HTMLElement;
+    private landingPage: HTMLDivElement | null = null;
 
     // Selection + tooltip
     private selectionManager: powerbi.extensibility.ISelectionManager;
@@ -406,6 +407,7 @@ export class Visual implements IVisual {
         // This prevents the "blank screen" crash.
         if (!dataView) {
             this.clearVisual();
+            this.showLandingPage();
             return;
         }
 
@@ -495,8 +497,10 @@ export class Visual implements IVisual {
             this.frames = this.transformFrames(dataView, this.colorPalette, this.colorMap);
             if (this.frames.length === 0) {
                 this.clearVisual();
+                this.showLandingPage();
                 return;
             }
+            this.hideLandingPage();
             this.measureFormat = dataView.categorical?.values?.[0]?.source?.format as string | undefined;
             this.xTitleText = dataView.categorical?.values?.[0]?.source?.displayName || "";
             // prefer the category role column; fall back to the first category
@@ -519,8 +523,10 @@ export class Visual implements IVisual {
             const data: BarDataPoint[] = this.transformData(dataView, this.colorPalette, this.colorMap);
             if (!data || data.length === 0) {
                 this.clearVisual();
+                this.showLandingPage();
                 return;
             }
+            this.hideLandingPage();
             this.measureFormat = dataView.categorical?.values?.[0]?.source?.format as string | undefined;
             this.xTitleText = dataView.categorical?.values?.[0]?.source?.displayName || "";
             const catCol2 = dataView.categorical?.categories?.find(c => (c.source.roles as any)?.category) || dataView.categorical?.categories?.[0];
@@ -1440,13 +1446,131 @@ export class Visual implements IVisual {
             this.controlsRoot.style.display = visible ? "flex" : "none";
         }
     }
+
+    private showLandingPage() {
+        if (this.landingPage) return;
+
+        this.stop();
+        if (this.controlsRoot) {
+            this.controlsRoot.style.display = "none";
+        }
+        if (this.tooltipDiv) {
+            this.tooltipDiv.style.display = "none";
+        }
+
+        const page = document.createElement("div");
+        page.className = "bar-racing-landing-page";
+        page.setAttribute("role", "note");
+
+        const s = page.style;
+        s.position = "absolute";
+        s.inset = "0";
+        s.zIndex = "999";
+        s.boxSizing = "border-box";
+        s.display = "flex";
+        s.flexDirection = "column";
+        s.alignItems = "center";
+        s.justifyContent = "center";
+        s.gap = "12px";
+        s.padding = "18px";
+        s.background = "#ffffff";
+        s.color = "#1f2933";
+        s.fontFamily = "Segoe UI, Arial, sans-serif";
+        s.textAlign = "center";
+        s.overflowY = "auto";
+
+        const title = document.createElement("h2");
+        title.textContent = "Bar Racing Image";
+        title.style.margin = "0";
+        title.style.color = "#1f5d99";
+        title.style.fontSize = "22px";
+        title.style.fontWeight = "600";
+        page.appendChild(title);
+
+        const subtitle = document.createElement("p");
+        subtitle.textContent = "Animated bar race chart with optional category images.";
+        subtitle.style.margin = "0";
+        subtitle.style.fontSize = "12px";
+        subtitle.style.color = "#52616f";
+        page.appendChild(subtitle);
+
+        const author = document.createElement("p");
+        author.textContent = "Developed by S. Rathinagiri";
+        author.style.margin = "0";
+        author.style.fontSize = "12px";
+        author.style.fontWeight = "600";
+        page.appendChild(author);
+
+        const box = document.createElement("div");
+        box.style.boxSizing = "border-box";
+        box.style.width = "min(460px, 96%)";
+        box.style.marginTop = "8px";
+        box.style.padding = "14px 16px";
+        box.style.border = "1px solid #d7dde5";
+        box.style.borderRadius = "6px";
+        box.style.background = "#f8fafc";
+        box.style.textAlign = "left";
+
+        const boxTitle = document.createElement("div");
+        boxTitle.textContent = "To visualize your data:";
+        boxTitle.style.fontWeight = "600";
+        boxTitle.style.marginBottom = "8px";
+        box.appendChild(boxTitle);
+
+        const list = document.createElement("ol");
+        list.style.margin = "0";
+        list.style.paddingLeft = "20px";
+        list.style.fontSize = "12px";
+        list.style.lineHeight = "1.55";
+
+        [
+            "Add a category field to Category.",
+            "Add a numeric field to Measure.",
+            "Add a period, date, or sequence field to Play Axis.",
+            "Optionally add data:image values to Image URI for category icons."
+        ].forEach(step => {
+            const li = document.createElement("li");
+            li.textContent = step;
+            list.appendChild(li);
+        });
+
+        box.appendChild(list);
+        page.appendChild(box);
+
+        const note = document.createElement("p");
+        note.textContent = "External image URLs are not loaded; use embedded data:image values.";
+        note.style.margin = "2px 0 0";
+        note.style.fontSize = "11px";
+        note.style.color = "#64748b";
+        page.appendChild(note);
+
+        this.rootElement.appendChild(page);
+        this.landingPage = page;
+    }
+
+    private hideLandingPage() {
+        if (!this.landingPage) return;
+        this.rootElement.removeChild(this.landingPage);
+        this.landingPage = null;
+    }
+
     /**
      * Helper function to clear the visual when no data is present
      */
     private clearVisual() {
-        this.barContainer.selectAll("rect").remove();
+        this.stop();
+        this.barContainer.selectAll("*").remove();
         this.xAxisGroup.selectAll("*").remove();
         this.yAxisGroup.selectAll("*").remove();
+        this.xTitleGroup.selectAll("*").remove();
+        this.yTitleGroup.selectAll("*").remove();
+        if (this.frameLabel) {
+            this.frameLabel.textContent = "";
+        }
+        if (this.progressSlider) {
+            this.progressSlider.max = "0";
+            this.progressSlider.value = "0";
+        }
     }
 /**
      * This function parses the settings in the formatting pane
