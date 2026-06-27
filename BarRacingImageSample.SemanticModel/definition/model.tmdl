@@ -1,0 +1,22 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: ta-IN
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["BarRacingImageSampleData","Category","FactTable"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling"]
+
+ref table Category
+ref table FactTable
+ref table DateTableTemplate_b6c753b3-3c9a-4eba-98a3-316681e2d56b
+ref table LocalDateTable_7798a8cd-bcfa-4231-8fc8-ddcfd7b7550f
+ref table Date
+
+ref cultureInfo en-US
+

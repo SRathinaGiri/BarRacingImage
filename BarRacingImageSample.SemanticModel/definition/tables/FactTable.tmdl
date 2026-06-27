@@ -1,0 +1,103 @@
+table FactTable
+	lineageTag: 2b2730f0-23f0-4a2b-b909-f0ce60efd3fb
+
+	/// Total Wikimedia page views for the selected date context.
+	measure 'Total Page Views' =
+			CALCULATE(
+			    SUM('FactTable'[PageViews]),
+			    USERELATIONSHIP('FactTable'[Period], 'Date'[Date])
+			)
+		formatString: #,0
+		displayFolder: Sample Measures
+		lineageTag: e9b97257-375d-4c7e-95d2-b3950a17e873
+
+	/// Cumulative Wikimedia page views through the current play-axis period.
+	measure 'Running Total Page Views' =
+			VAR CurrentPeriod = MAX('Date'[Date])
+			RETURN
+			    CALCULATE(
+			        [Total Page Views],
+			        FILTER(
+			            ALLSELECTED('Date'[Date]),
+			            'Date'[Date] <= CurrentPeriod
+			        )
+			    )
+		formatString: #,0
+		displayFolder: Sample Measures
+		lineageTag: c50e6d93-06b7-4d30-bde5-d770f68ca34e
+
+	/// Number of cartoon character categories in the current context.
+	measure 'Character Count' = DISTINCTCOUNT('Category'[Category])
+		formatString: #,0
+		displayFolder: Sample Measures
+		lineageTag: f5dd1294-9da2-4d0e-8a99-d274e6901b94
+
+	/// Current month label from the Date table.
+	measure 'Selected Period' =
+			COALESCE(
+			    SELECTEDVALUE('Date'[Month Year]),
+			    FORMAT(MAX('Date'[Date]), "MMM yyyy")
+			)
+		formatString: @
+		displayFolder: Sample Measures
+		lineageTag: 84bd5149-a7ec-4ada-80dd-9b257243d3b7
+
+	/// Rank of each character by page views in the current period.
+	measure 'Popularity Rank' =
+			RANKX(
+			    ALLSELECTED('Category'[Category]),
+			    [Total Page Views],
+			    ,
+			    DESC,
+			    Dense
+			)
+		formatString: #,0
+		displayFolder: Sample Measures
+		lineageTag: 3274a16c-0de6-4086-959a-d67d5c45ea57
+
+	column Period
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8f9bf078-380b-49f3-b0e4-fc6408be6ba2
+		summarizeBy: none
+		sourceColumn: Period
+
+		variation Variation
+			isDefault
+			relationship: cfbe5195-6f9d-4422-b2d2-68fc7aaae20b
+			defaultHierarchy: LocalDateTable_7798a8cd-bcfa-4231-8fc8-ddcfd7b7550f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Category
+		dataType: string
+		lineageTag: 3a15d9e6-326c-4f29-abd9-e353503b9287
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column PageViews
+		dataType: int64
+		formatString: 0
+		lineageTag: 5350f1f8-8533-4946-b091-0541caeec100
+		summarizeBy: sum
+		sourceColumn: PageViews
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactTable = m
+		mode: import
+		source =
+				let
+				    Source = BarRacingImageSampleData,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"Period", "Category", "PageViews"})
+				in
+				    #"Removed Other Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

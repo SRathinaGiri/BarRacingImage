@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.2.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
   "themeCollection": {
     "baseTheme": {
       "name": "CY26SU05",
@@ -10,21 +10,6 @@
       },
       "type": "SharedResources"
     }
-  },
-  "layoutOptimization": "None",
-  "settings": {
-    "useStylableVisualContainerHeader": true,
-    "defaultDrillFilterOtherVisuals": true,
-    "allowChangeFilterTypes": true,
-    "useEnhancedTooltips": true,
-    "useDefaultAggregateDisplayName": true
-  },
-  "slowDataSourceSettings": {
-    "isCrossHighlightingDisabled": false,
-    "isSlicerSelectionsButtonEnabled": false,
-    "isFilterSelectionsButtonEnabled": false,
-    "isFieldWellButtonEnabled": false,
-    "isApplyAllButtonEnabled": false
   },
   "resourcePackages": [
     {
@@ -39,21 +24,29 @@
       ]
     },
     {
-      "name": "RegisteredResources",
-      "type": "RegisteredResources",
+      "name": "barRacing19740418",
+      "type": "CustomVisual",
       "items": [
         {
-          "name": "barRacingImage.barRacing19740418.pbiviz",
-          "type": 5,
-          "path": "CustomVisuals/barRacingImage.barRacing19740418.pbiviz"
+          "name": "barRacing19740418.pbiviz.json",
+          "path": "barRacing19740418.pbiviz.json",
+          "type": "CustomVisualMetadata"
         }
       ]
     }
   ],
-  "customVisuals": [
-    {
-      "name": "barRacing19740418",
-      "version": "1.0.0.0"
-    }
-  ]
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  },
+  "slowDataSourceSettings": {
+    "isCrossHighlightingDisabled": false,
+    "isSlicerSelectionsButtonEnabled": false,
+    "isFilterSelectionsButtonEnabled": false,
+    "isFieldWellButtonEnabled": false,
+    "isApplyAllButtonEnabled": false
+  }
 }

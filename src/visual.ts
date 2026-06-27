@@ -279,6 +279,7 @@ export class Visual implements IVisual {
     private xTitleText: string = "";
     private yTitleText: string = "";
     private layout: { mLeft: number; mTop: number; innerWidth: number; innerHeight: number } | null = null;
+    private labelValueByCategory: { [key: string]: number } = {};
 
     /**
      * Called once when the visual is initialized
@@ -1041,6 +1042,18 @@ export class Visual implements IVisual {
         const labelsSel = this.barContainer
             .selectAll<SVGTextElement, BarDataPoint>("text.data-label")
             .data(filtered, (d: any) => d.category);
+        const previousValueFor = (d: BarDataPoint) => {
+            const previous = this.labelValueByCategory[d.category];
+            return Number.isFinite(previous) ? previous : d.value;
+        };
+        const tweenCounter = (transition: d3.Transition<SVGTextElement, BarDataPoint, any, any>) => {
+            transition.tween("text", function(this: SVGTextElement, d: BarDataPoint) {
+                const interpolate = d3.interpolateNumber(previousValueFor(d), d.value);
+                return (t: number) => {
+                    this.textContent = formatter.format(interpolate(t));
+                };
+            });
+        };
 
         const posX = (d: BarDataPoint) => {
             const w = xScale(d.value);
@@ -1072,7 +1085,8 @@ export class Visual implements IVisual {
         };
 
         const merged = labelsSel.join(
-            enter => enter.append("text")
+            enter => {
+                const entered = enter.append("text")
                 .attr("class", "data-label")
                 .attr("x", d => posX(d))
                 .attr("y", d => (yScale(d.category) ?? 0) + yScale.bandwidth() / 2)
@@ -1081,22 +1095,31 @@ export class Visual implements IVisual {
                 .attr("fill", d => fillFor(d))
                 .style("font-family", fontFamily)
                 .style("font-size", `${fontSize}px`)
-                .text(d => formatter.format(d.value))
-                .call(enter => enter.transition().duration(duration).ease(easeType)
+                .text(d => formatter.format(previousValueFor(d)));
+                const transition = entered.transition().duration(duration).ease(easeType)
                     .attr("x", d => posX(d))
-                ),
-            update => update
-                .call(update => update.transition().duration(duration).ease(easeType)
+                    .attr("y", d => (yScale(d.category) ?? 0) + yScale.bandwidth() / 2)
+                    .attr("text-anchor", d => anchor(d))
+                    .attr("fill", d => fillFor(d));
+                tweenCounter(transition);
+                return entered;
+            },
+            update => {
+                const transition = update.transition().duration(duration).ease(easeType)
                     .attr("x", d => posX(d))
                     .attr("y", d => (yScale(d.category) ?? 0) + yScale.bandwidth() / 2)
                     .attr("text-anchor", d => anchor(d))
                     .attr("fill", d => fillFor(d))
                     .style("font-family", fontFamily)
-                    .style("font-size", `${fontSize}px`)
-                )
-                .text(d => formatter.format(d.value)),
+                    .style("font-size", `${fontSize}px`);
+                tweenCounter(transition);
+                return update;
+            },
             exit => exit.remove()
         );
+        filtered.forEach(d => {
+            this.labelValueByCategory[d.category] = d.value;
+        });
         // Ensure labels are drawn above bars
         (merged as any).raise?.();
     }
@@ -1725,6 +1748,7 @@ export class Visual implements IVisual {
         this.xTitleGroup.selectAll("*").remove();
         this.yTitleGroup.selectAll("*").remove();
         this.playAxisLabelGroup.selectAll("*").remove();
+        this.labelValueByCategory = {};
         if (this.frameLabel) {
             this.frameLabel.textContent = "";
         }

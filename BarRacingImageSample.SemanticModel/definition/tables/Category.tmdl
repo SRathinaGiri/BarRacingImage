@@ -1,0 +1,43 @@
+table Category
+	lineageTag: 0526a9de-0fd0-4aee-b9a1-40534100d582
+
+	column Category
+		dataType: string
+		lineageTag: cdde79f0-c87e-4233-aa69-c713d7b2981c
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column ImageURI
+		dataType: string
+		lineageTag: c1ff9e82-f2ab-419b-95e3-cf76a4ca8e97
+		dataCategory: ImageUrl
+		summarizeBy: none
+		sourceColumn: ImageURI
+
+		annotation SummarizationSetBy = Automatic
+
+	column Article
+		dataType: string
+		lineageTag: 9f70cb48-7a39-4b55-a883-4197a91a7594
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: Article
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Category = m
+		mode: import
+		source =
+				let
+				    Source = BarRacingImageSampleData,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"Category", "ImageURI", "Article"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Other Columns", {"Category"})
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

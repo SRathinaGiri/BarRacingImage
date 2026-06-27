@@ -1,0 +1,15 @@
+relationship cfbe5195-6f9d-4422-b2d2-68fc7aaae20b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FactTable.Period
+	toColumn: LocalDateTable_7798a8cd-bcfa-4231-8fc8-ddcfd7b7550f.Date
+
+relationship AutoDetected_0f7f2db4-15e2-4e5e-aa22-13062cd4b6e3
+	fromColumn: FactTable.Category
+	toColumn: Category.Category
+
+relationship Date_FactTable_Period
+	isActive: false
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FactTable.Period
+	toColumn: Date.Date
+

@@ -1,0 +1,13 @@
+expression BarRacingImageSampleData =
+		let
+		    Source = Csv.Document(File.Contents("C:\Users\acer\OneDrive\MyProjects\PBViz\Image\barRacingURL\sample\BarRacingImageSampleData.csv"),[Delimiter=",", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+		    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Period", type date}, {"Category", type text}, {"ImageURI", type text}, {"PageViews", Int64.Type}, {"Source", type text}, {"Article", type text}})
+		in
+		    #"Changed Type"
+	lineageTag: 07381eed-a963-4af3-bfe5-7f2007a8ba1b
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

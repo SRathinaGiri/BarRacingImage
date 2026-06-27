@@ -1,0 +1,53 @@
+table Date
+	lineageTag: ed7818f2-4f69-4179-99cc-038fda5178c0
+
+	column Date
+		lineageTag: 7e708524-faea-4a42-a1de-e2f7555f9602
+		isNameInferred
+		sourceColumn: [Date]
+
+	column Year
+		lineageTag: 8bc8c90d-f981-474f-8364-e5a19b017ab8
+		isNameInferred
+		sourceColumn: [Year]
+
+	column 'Month Number'
+		lineageTag: 02fb3b8d-0e42-47af-8955-317e49ed483b
+		isNameInferred
+		sourceColumn: [Month Number]
+
+	column Month
+		lineageTag: 6b373f24-4b65-446a-85d8-2b5c458a6658
+		isNameInferred
+		sourceColumn: [Month]
+
+	column 'Month Year'
+		lineageTag: 0a705cce-28a1-4799-b77f-d532d8d63fae
+		isNameInferred
+		sourceColumn: [Month Year]
+		sortByColumn: 'Month Year Sort'
+
+	column Quarter
+		lineageTag: fb774c79-a43c-4164-8f1a-17165c40efb9
+		isNameInferred
+		sourceColumn: [Quarter]
+
+	column 'Month Year Sort'
+		isHidden
+		lineageTag: 2f734483-8f4d-468e-af61-5f9740dee102
+		isNameInferred
+		sourceColumn: [Month Year Sort]
+
+	partition Date = calculated
+		mode: import
+		source =
+				ADDCOLUMNS(
+				    CALENDAR(MIN('FactTable'[Period]), MAX('FactTable'[Period])),
+				    "Year", YEAR([Date]),
+				    "Month Number", MONTH([Date]),
+				    "Month", FORMAT([Date], "MMM"),
+				    "Month Year", FORMAT([Date], "MMM yyyy"),
+				    "Month Year Sort", YEAR([Date]) * 100 + MONTH([Date]),
+				    "Quarter", "Q" & FORMAT([Date], "Q")
+				)
+
