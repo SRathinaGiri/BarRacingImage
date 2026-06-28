@@ -1029,10 +1029,15 @@ export class Visual implements IVisual {
             return w < (approxTextWidth(label) + 8);
         };
 
+        const labelTextWidth = (d: BarDataPoint) => {
+            const text = formatter?.format ? formatter.format(d.value) : String(d.value);
+            return text ? Math.max(24, text.length * (fontSize * 0.62)) : 0;
+        };
         const threshold = Math.max(16, fontSize * 2 + 8);
         const valueWouldBeInside = (d: BarDataPoint) => {
             const w = xScale(d.value);
-            return inside && w > threshold;
+            const outsideWouldOverflow = (w + labelTextWidth(d) + 8) > innerWidth;
+            return (inside || outsideWouldOverflow) && w > threshold;
         };
 
         // If both category and value are outside, drop the value label
