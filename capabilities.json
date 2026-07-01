@@ -169,5 +169,10 @@
   },
   "supportsLandingPage": true,
   "supportsEmptyDataView": true,
+  "supportsMultiVisualSelection": true,
+  "supportsKeyboardFocus": true,
+  "tooltips": {
+    "supportEnhancedTooltips": true
+  },
   "privileges": []
 }

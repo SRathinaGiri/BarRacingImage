@@ -308,7 +308,11 @@ export class Visual implements IVisual {
             .classed("clear-catcher", true)
             .attr("fill", "transparent")
             .style("pointer-events", "all")
-            .on("click", () => this.selectionManager?.clear?.());
+            .on("click", () => {
+                if (this.areInteractionsAllowed()) {
+                    this.selectionManager?.clear?.();
+                }
+            });
 
         // Create a container for the bars
         this.barContainer = this.svg.append("g")
@@ -942,7 +946,12 @@ export class Visual implements IVisual {
                 .remove()
         )
         .on("click", (event, d) => this.handleBarClick(event as any as MouseEvent, d))
-        .on("contextmenu", (event) => this.selectionManager?.showContextMenu?.(null, { x: event.clientX, y: event.clientY }));
+        .on("contextmenu", (event) => {
+            event.preventDefault();
+            if (this.areInteractionsAllowed()) {
+                this.selectionManager?.showContextMenu?.(null, { x: event.clientX, y: event.clientY });
+            }
+        });
 
         if (this.settings?.labels?.showImageInTooltip) {
             barRects
@@ -1473,7 +1482,9 @@ export class Visual implements IVisual {
             this.renderFrame(this.frames[this.currentFrameIndex], innerWidth, innerHeight);
         }
         // Clear selections on reset
-        this.selectionManager?.clear?.();
+        if (this.areInteractionsAllowed()) {
+            this.selectionManager?.clear?.();
+        }
         if (this.progressSlider) this.progressSlider.value = "0";
     }
 
@@ -1565,8 +1576,13 @@ export class Visual implements IVisual {
     }
 
     private handleBarClick(event: MouseEvent, d: BarDataPoint) {
+        if (!this.areInteractionsAllowed()) return;
         const isCtrlPressed = !!(event?.ctrlKey || event?.metaKey);
         this.selectionManager?.select(d.selectionId, isCtrlPressed);
+    }
+
+    private areInteractionsAllowed(): boolean {
+        return this.host.hostCapabilities?.allowInteractions ?? true;
     }
 
     private showCustomTooltip(event: MouseEvent, d: BarDataPoint, frameLabel: string, formatter: any) {
