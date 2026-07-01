@@ -13,8 +13,8 @@ export class VisualSettings extends DataViewObjectsParser {
 
 export class AnimationSettings {
   // This is the property for our duration
-  // We give it a default value of 250
-  public duration: number = 500;
+  // We give it a default value of 1000
+  public duration: number = 1000;
   public frameDelay: number = 100;
   public easing: string = "linear";
   public autoplay: boolean = true;

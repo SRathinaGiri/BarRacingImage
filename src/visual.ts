@@ -73,7 +73,7 @@ class AnimationCardSettings extends formattingSettings.SimpleCard {
     public name: string = "animation";
     public displayName: string = "Animation";
 
-    public duration = new formattingSettings.NumUpDown({ name: "duration", value: 500 });
+    public duration = new formattingSettings.NumUpDown({ name: "duration", value: 1000 });
     public frameDelay = new formattingSettings.NumUpDown({ name: "frameDelay", value: 100 });
     public easing = new formattingSettings.ItemDropdown({
         name: "easing",
