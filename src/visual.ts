@@ -406,6 +406,7 @@ export class Visual implements IVisual {
         // Init selection + tooltip service
         this.selectionManager = this.host.createSelectionManager();
         this.tooltipServiceWrapper = createTooltipServiceWrapper(this.host.tooltipService, this.rootElement);
+        this.rootElement.addEventListener("contextmenu", (event: MouseEvent) => this.showContextMenu(event));
 
         // Formatting model service
         this.formattingSettingsService = new FormattingSettingsService();
@@ -946,12 +947,7 @@ export class Visual implements IVisual {
                 .remove()
         )
         .on("click", (event, d) => this.handleBarClick(event as any as MouseEvent, d))
-        .on("contextmenu", (event) => {
-            event.preventDefault();
-            if (this.areInteractionsAllowed()) {
-                this.selectionManager?.showContextMenu?.(null, { x: event.clientX, y: event.clientY });
-            }
-        });
+        .on("contextmenu", (event, d) => this.showContextMenu(event as any as MouseEvent, d.selectionId));
 
         if (this.settings?.labels?.showImageInTooltip) {
             barRects
@@ -1579,6 +1575,17 @@ export class Visual implements IVisual {
         if (!this.areInteractionsAllowed()) return;
         const isCtrlPressed = !!(event?.ctrlKey || event?.metaKey);
         this.selectionManager?.select(d.selectionId, isCtrlPressed);
+    }
+
+    private showContextMenu(event: MouseEvent, selectionId?: ISelectionId) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.areInteractionsAllowed()) return;
+
+        this.selectionManager?.showContextMenu(selectionId || ({} as ISelectionId), {
+            x: event.clientX,
+            y: event.clientY
+        });
     }
 
     private areInteractionsAllowed(): boolean {

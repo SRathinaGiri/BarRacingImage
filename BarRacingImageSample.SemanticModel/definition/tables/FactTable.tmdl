@@ -11,21 +11,6 @@ table FactTable
 		displayFolder: Sample Measures
 		lineageTag: e9b97257-375d-4c7e-95d2-b3950a17e873
 
-	/// Cumulative Wikimedia page views through the current play-axis period.
-	measure 'Running Total Page Views' =
-			VAR CurrentPeriod = MAX('Date'[Date])
-			RETURN
-			    CALCULATE(
-			        [Total Page Views],
-			        FILTER(
-			            ALLSELECTED('Date'[Date]),
-			            'Date'[Date] <= CurrentPeriod
-			        )
-			    )
-		formatString: #,0
-		displayFolder: Sample Measures
-		lineageTag: c50e6d93-06b7-4d30-bde5-d770f68ca34e
-
 	/// Number of cartoon character categories in the current context.
 	measure 'Character Count' = DISTINCTCOUNT('Category'[Category])
 		formatString: #,0
@@ -54,6 +39,21 @@ table FactTable
 		formatString: #,0
 		displayFolder: Sample Measures
 		lineageTag: 3274a16c-0de6-4086-959a-d67d5c45ea57
+
+	/// Cumulative Wikimedia page views through the current play-axis period.
+	measure 'Running Total Page Views' =
+			VAR CurrentPeriod = MAX('Date'[Date])
+			RETURN
+			    CALCULATE(
+			        [Total Page Views],
+			        FILTER(
+			            ALLSELECTED('Date'[Date]),
+			            'Date'[Date] <= CurrentPeriod
+			        )
+			    )
+		formatString: #,0
+		displayFolder: Sample Measures
+		lineageTag: c50e6d93-06b7-4d30-bde5-d770f68ca34e
 
 	column Period
 		dataType: dateTime

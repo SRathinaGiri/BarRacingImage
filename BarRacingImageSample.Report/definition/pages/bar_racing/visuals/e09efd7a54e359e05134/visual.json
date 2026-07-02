@@ -1,0 +1,120 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "e09efd7a54e359e05134",
+  "position": {
+    "x": 9.9555555555555557,
+    "y": 0,
+    "z": 0,
+    "height": 719.64444444444439,
+    "width": 817.77777777777783,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "barRacing19740418",
+    "query": {
+      "queryState": {
+        "category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Category"
+                    }
+                  },
+                  "Property": "Category"
+                }
+              },
+              "queryRef": "Category.Category",
+              "nativeQueryRef": "Category"
+            }
+          ]
+        },
+        "measure": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FactTable"
+                    }
+                  },
+                  "Property": "Running Total Page Views"
+                }
+              },
+              "queryRef": "FactTable.Running Total Page Views",
+              "nativeQueryRef": "Running Total Page Views"
+            }
+          ]
+        },
+        "playAxis": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Date"
+                    }
+                  },
+                  "Property": "Month Year"
+                }
+              },
+              "queryRef": "Date.Month Year",
+              "nativeQueryRef": "Month Year"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "b8605d61d59b74d2179d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Category"
+              }
+            },
+            "Property": "Category"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "788236ebc85826c065f5",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "FactTable"
+              }
+            },
+            "Property": "Running Total Page Views"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "13b271d502f218d89916",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Date"
+              }
+            },
+            "Property": "Month Year"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}
