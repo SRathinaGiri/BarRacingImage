@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0.0",
+  "version": "1.2.0.0",
   "author": {
     "name": "Subbiah Rathinagiri",
     "email": "srg@rathinagiri.in"
@@ -15,7 +15,7 @@
     "guid": "barRacing19740418",
     "name": "barRacingImage",
     "displayName": "Bar Racing Image",
-    "version": "1.0.0.0",
+    "version": "1.2.0.0",
     "description": "Animated bar racing chart with category images",
     "supportUrl": "https://www.rathinagiri.in",
     "gitHubUrl": "https://github.com/SRathinaGiri/BarRacingImage",

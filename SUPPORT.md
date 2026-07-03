@@ -44,4 +44,8 @@ Direct Contact: email srg@rathinagiri.in with a description of the issue, Power 
 
 ## 6. Version History
 
+v1.2.0.0: Marketplace resubmission update with corrected Partner Center search results summary text.
+
+v1.1.0.0: Context menu support and certification refinements.
+
 v1.0.0.0: Initial release of Bar Racing Image.
